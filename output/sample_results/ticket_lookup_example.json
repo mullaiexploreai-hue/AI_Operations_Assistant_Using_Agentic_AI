@@ -1,0 +1,23 @@
+{
+  "tool": "lookup_ticket",
+  "input": {
+    "ticket_id": "TKT-1001",
+    "employee_id": "EMP1024",
+    "issue_summary": ""
+  },
+  "result": {
+    "ok": true,
+    "found": true,
+    "ticket": {
+      "ticket_id": "TKT-1001",
+      "employee_id": "EMP1024",
+      "issue_summary": "VPN disconnects after MFA login",
+      "category": "network",
+      "priority": "high",
+      "status": "in_progress",
+      "created_at": "2026-09-10T09:00:00Z"
+    }
+  },
+  "selected_tool": "ticket_lookup",
+  "assistant_response": "Ticket TKT-1001 is in_progress. Summary: VPN disconnects after MFA login. Priority: high."
+}

@@ -1,0 +1,42 @@
+{
+  "tool": "create_ticket",
+  "turns": [
+    {
+      "user_message": "I am EMP3072 and my laptop will not connect to Wi-Fi. Please create a ticket.",
+      "input": {
+        "employee_id": "EMP3072",
+        "issue_summary": "laptop will not connect to Wi-Fi",
+        "category": null,
+        "priority": "medium"
+      },
+      "result": {
+        "ok": true,
+        "created": true,
+        "ticket_id": "TKT-13ACDDB4",
+        "status": "open"
+      },
+      "selected_tool": "ticket_creation",
+      "assistant_response": "Your IT ticket TKT-13ACDDB4 has been created with open status.",
+      "awaiting_clarification": false
+    },
+    {
+      "user_message": "I am EMP3072 and my LAPTOP WILL NOT CONNECT TO WI-FI. Please create another ticket.",
+      "input": {
+        "employee_id": "EMP3072",
+        "issue_summary": "LAPTOP WILL NOT CONNECT TO WI-FI",
+        "category": null,
+        "priority": "medium"
+      },
+      "result": {
+        "ok": true,
+        "created": false,
+        "duplicate": true,
+        "ticket_id": "TKT-13ACDDB4",
+        "error": "A matching open ticket already exists."
+      },
+      "selected_tool": "ticket_creation",
+      "assistant_response": "I did not create a duplicate. An open matching ticket already exists: TKT-13ACDDB4.",
+      "awaiting_clarification": false
+    }
+  ]
+}

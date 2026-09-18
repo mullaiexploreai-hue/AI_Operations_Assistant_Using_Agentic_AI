@@ -1,0 +1,23 @@
+{
+  "user_message": "How do I reset my VPN password?",
+  "selected_tool": "knowledge_search",
+  "tool": "search_knowledge_base",
+  "query": "reset my VPN password",
+  "result": {
+    "ok": true,
+    "found": true,
+    "results": [
+      {
+        "article_id": "KB-001",
+        "title": "Reset VPN access",
+        "content": "To reset your VPN access, open the company password portal, choose VPN, and complete MFA verification. Contact IT if MFA is unavailable.",
+        "source": "IT Knowledge Base"
+      }
+    ]
+  },
+  "assistant_response": "I found this guidance in IT Knowledge Base, Reset VPN access: To reset your VPN access, open the company password portal, choose VPN, and complete MFA verification. Contact IT if MFA is unavailable.",
+  "real_run": {
+    "scenario": "kb_vpn_positive",
+    "awaiting_clarification": false
+  }
+}
