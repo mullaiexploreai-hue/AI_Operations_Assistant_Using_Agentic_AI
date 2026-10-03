@@ -23,7 +23,14 @@ The graph state carries conversation history, structured request facts, selected
 
 ### Workflow
 
-`views/customer_chat.py:render()` collects the message. `pipeline/graph.py:run_customer_turn()` updates the session in `session/session_store.py` and invokes LangGraph. `pipeline/compaction.py:run()` uses `llm/client.py:complete_support_request()` to extract intent and fields into `pipeline/state.py:CompactedTicketInfo`. Then `pipeline/graph.py:_validate_request()` checks required data and routes to one tool in `tools/support_tools.py`. `_final_response_node()` turns the tool result into the reply, which is saved and displayed in the chat.
+| Stage | File and function | Responsibility |
+|---|---|---|
+| Receive message | `views/customer_chat.py` — `render()` | Displays chat history and accepts the user's message. |
+| Preserve state and run graph | `pipeline/graph.py` — `run_customer_turn()`; `session/session_store.py` — `get_or_create_session()`, `save_session()` | Loads or creates the session, appends the turn, invokes LangGraph, and saves updated state. |
+| Extract request | `pipeline/compaction.py` — `run()`; `llm/client.py` — `complete_support_request()` | Extracts intent and request fields into `pipeline/state.py` — `CompactedTicketInfo`. |
+| Validate and route | `pipeline/graph.py` — `_validate_request()`, `_select_tool()`, `_route_after_validation()` | Checks required fields, asks for missing information, and routes valid requests. |
+| Execute tool | `pipeline/graph.py` — tool nodes; `tools/support_tools.py` — `search_knowledge_base()`, `lookup_ticket()`, `create_ticket()` | Runs the selected SQLite-backed knowledge or ticket operation and records its result. |
+| Respond | `pipeline/graph.py` — `_final_response_node()` | Builds the final reply from the tool result and appends it to conversation history. |
 
 Graph state and request intents are defined in `pipeline/state.py`; shared policies are in `config.py`. Missing required fields stop execution and prompt the user before a tool is called.
 
