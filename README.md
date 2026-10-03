@@ -21,34 +21,11 @@ flowchart TD
 
 The graph state carries conversation history, structured request facts, selected tool, tool calls, and the tool result. Only the structured facts are passed downstream after compaction. LiteLLM native function calling extracts the structured request before LangGraph routes it to the local tool.
 
-### Workflow Components
+### Workflow
 
-1. **Receive a message and preserve state**
-    - `views/customer_chat.py:render()` displays the chat history and sends a submitted message to the workflow.
-    - `pipeline/graph.py:run_customer_turn()` loads the session, updates the active request, appends the user turn, invokes LangGraph, and saves the resulting state.
-    - `session/session_store.py:get_or_create_session()` and `save_session()` retain sessions in memory. `pipeline/state.py:SessionState` defines the graph state, while `new_session_state()` initializes it.
+`views/customer_chat.py:render()` collects the message. `pipeline/graph.py:run_customer_turn()` updates the session in `session/session_store.py` and invokes LangGraph. `pipeline/compaction.py:run()` uses `llm/client.py:complete_support_request()` to extract intent and fields into `pipeline/state.py:CompactedTicketInfo`. Then `pipeline/graph.py:_validate_request()` checks required data and routes to one tool in `tools/support_tools.py`. `_final_response_node()` turns the tool result into the reply, which is saved and displayed in the chat.
 
-2. **Extract intent and request fields**
-    - `pipeline/info_gathering.py:run()` passes the turn through; it deliberately does not make a second LLM completeness decision.
-    - `pipeline/compaction.py:run()` builds the transcript and requests structured extraction. `_request_issue()`, `_explicit_priority()`, and `_quoted_query()` normalize key values from the active request.
-    - `llm/client.py:complete_support_request()` calls LiteLLM's function-calling interface. Its `REQUEST_TOOL` schema defines the extraction payload.
-    - `pipeline/state.py:CompactedTicketInfo` holds the extracted fields; `RequestIntent` defines the four routing outcomes.
-
-3. **Validate before acting**
-    - `pipeline/graph.py:_validate_request()` checks the employee ID, issue/ticket reference, knowledge query, and ticket priority required for the selected intent.
-    - Missing fields set `awaiting_clarification` and add a prompt to the conversation. `_route_after_validation()` then ends the graph before any tool can run.
-
-4. **Select and execute a tool**
-    - `pipeline/graph.py:_select_tool()` stores the selected intent, and `_build_graph()` defines the conditional edges.
-    - `_knowledge_search_node()`, `_ticket_lookup_node()`, and `_ticket_creation_node()` call the corresponding functions in `tools/support_tools.py` and record arguments and results in state.
-    - `tools/support_tools.py:search_knowledge_base()`, `lookup_ticket()`, and `create_ticket()` perform the SQLite operations. `db/connection.py` manages read-only and write connections; `db/schema.sql` and `db/seed_data.sql` define and populate the local data.
-
-5. **Build the final response**
-    - `pipeline/graph.py:_final_response_node()` converts the tool result into a user-facing reply, including no-match, duplicate, and error outcomes. Unsupported intent uses a safe capability response and does not call a tool.
-    - The updated history is saved by `run_customer_turn()` and rendered on the next Streamlit rerun by `views/customer_chat.py:render()`.
-
-Shared policies such as priorities, ticket statuses, search limits, defaults,
-and extraction patterns are centralized in `config.py` for reuse.
+Graph state and request intents are defined in `pipeline/state.py`; shared policies are in `config.py`. Missing required fields stop execution and prompt the user before a tool is called.
 
 ## Technology Stack
 
